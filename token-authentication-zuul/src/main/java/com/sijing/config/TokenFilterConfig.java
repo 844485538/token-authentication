@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.AntPathMatcher;
@@ -17,6 +18,7 @@ import org.springframework.util.PathMatcher;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
+import com.sijing.redis.TokenRedisService;
 
 /**
  * zuul 过滤器
@@ -28,6 +30,9 @@ import com.netflix.zuul.exception.ZuulException;
 public class TokenFilterConfig extends ZuulFilter {
 	
 	private final static Logger logger = LoggerFactory.getLogger(TokenFilterConfig.class);
+	
+	@Autowired
+	private TokenRedisService tokenRedisService;
 	
 	/**
 	 * 白名单
@@ -75,7 +80,6 @@ public class TokenFilterConfig extends ZuulFilter {
         
         try {
             String token = request.getHeader("Authentication-Token");
-            String userAgentSource = request.getHeader("User-Agent");
             
             PathMatcher matcher = new AntPathMatcher();
             String requestURI = request.getRequestURI();
@@ -91,7 +95,7 @@ public class TokenFilterConfig extends ZuulFilter {
             }
             
             // 存在token即放行,在服务中自行验证token的正确性
-            if (StringUtils.isNotEmpty(token)){
+            if (tokenRedisService.checkToken(token)){
             	requestContext.setSendZuulResponse(true);
                 return null;
             } else {
