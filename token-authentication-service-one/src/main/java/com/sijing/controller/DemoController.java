@@ -24,5 +24,11 @@ public class DemoController {
 	public String login() {
 		return userRedisService.createToken();
 	}
+	
+	
+	@GetMapping("/getInfo")
+	public String getInfo() {
+		return "welcome to sijing";
+	}
 
 }
