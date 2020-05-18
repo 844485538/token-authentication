@@ -12,6 +12,14 @@ public class DemoController {
 	@Autowired
 	private UserRedisService userRedisService;
 	
+	/**
+	 * Redis
+	 * 		
+	 * 		key:user
+	 * 		value:token
+	 * 
+	 * @return
+	 */
 	@GetMapping("/login")
 	public String login() {
 		return userRedisService.createToken();
